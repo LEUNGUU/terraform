@@ -64,6 +64,7 @@ func realMain() int {
 	var err error
 
 	tmpLogPath := os.Getenv(envTmpLogPath)
+	log.Printf("[DEBUG] ======= After getting tmpLogPath from ENV: %v ========", tmpLogPath)
 	if tmpLogPath != "" {
 		f, err := os.OpenFile(tmpLogPath, os.O_RDWR|os.O_APPEND, 0666)
 		if err == nil {
@@ -112,6 +113,7 @@ func realMain() int {
 	// ill-advised) will be resolved relative to the true working directory,
 	// not the overridden one.
 	config, diags := cliconfig.LoadConfig()
+	log.Printf("=========After load config: %+v", config)
 
 	if len(diags) > 0 {
 		// Since we haven't instantiated a command.Meta yet, we need to do
@@ -144,6 +146,7 @@ func realMain() int {
 	credsSrc, err := credentialsSource(config)
 	if err == nil {
 		services = disco.NewWithCredentialsSource(credsSrc)
+		log.Printf("[INFO]=========== After get credentials: %+v", services)
 	} else {
 		// Most commands don't actually need credentials, and most situations
 		// that would get us here would already have been reported by the config
@@ -189,6 +192,7 @@ func realMain() int {
 	// Get the command line args.
 	binName := filepath.Base(os.Args[0])
 	args := os.Args[1:]
+	log.Printf("[INFO]================ GET binName %v and args %v", binName, args)
 
 	originalWd, err := os.Getwd()
 	if err != nil {
@@ -220,6 +224,7 @@ func realMain() int {
 		// they should primarily be working with the override working directory
 		// that we've now switched to above.
 		initCommands(originalWd, streams, config, services, providerSrc, providerDevOverrides, unmanagedProviders)
+		log.Printf("[INFO] ==========Commands is %+v", Commands)
 	}
 
 	// Run checkpoint
@@ -237,7 +242,9 @@ func realMain() int {
 	}
 
 	// Prefix the args with any args from the EnvCLI
+	log.Printf("[INFO] =====After initCommands, subcommand is: %+v", cliRunner.Subcommand())
 	args, err = mergeEnvArgs(EnvCLI, cliRunner.Subcommand(), args)
+	log.Printf("[INFO] =====After mergeEnvArgs, args is: %v", args)
 	if err != nil {
 		Ui.Error(err.Error())
 		return 1
@@ -248,6 +255,7 @@ func realMain() int {
 		cliRunner.Subcommand(), "-", "_", -1), " ", "_", -1)
 	args, err = mergeEnvArgs(
 		fmt.Sprintf("%s_%s", EnvCLI, suffix), cliRunner.Subcommand(), args)
+	log.Printf("suffix is %v", suffix)
 	if err != nil {
 		Ui.Error(err.Error())
 		return 1

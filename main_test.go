@@ -120,6 +120,7 @@ func TestMain_cliArgsFromEnv(t *testing.T) {
 				if err := os.Setenv(EnvCLI, tc.Value); err != nil {
 					t.Fatalf("err: %s", err)
 				}
+				t.Logf("what we have set: %v", os.Getenv(EnvCLI))
 			}
 
 			// Set up the args
@@ -129,8 +130,11 @@ func TestMain_cliArgsFromEnv(t *testing.T) {
 
 			// Run it!
 			os.Args = args
+			t.Logf("Before run, os.Args: %v", os.Args)
+			t.Logf("Commands: %v", Commands)
 			testCommand.Args = nil
 			exit := realMain()
+			t.Logf("After run, testCommand.Args: %v", testCommand.Args)
 			if (exit != 0) != tc.Err {
 				t.Fatalf("bad: %d", exit)
 			}
